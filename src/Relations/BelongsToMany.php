@@ -19,6 +19,10 @@ class BelongsToMany extends EloquentBelongsToMany
         return $this->getForeignKey();
     }
 
+    public function getQualifiedForeignPivotKeyName()
+     {
+         return $this->foreignKey;
+     }
     /**
      * {@inheritdoc}
      */
@@ -134,6 +138,7 @@ class BelongsToMany extends EloquentBelongsToMany
         }
 
         $records = $this->formatSyncList($ids);
+
 
         $detach = array_diff($current, array_keys($records));
 
@@ -328,6 +333,7 @@ class BelongsToMany extends EloquentBelongsToMany
      */
     public function getRelatedKey()
     {
-        return property_exists($this, 'relatedKey') ? $this->relatedKey : $this->otherKey;
+        //var_dump($this);
+        return property_exists($this, 'relatedPivotKey') ? $this->relatedPivotKey : $this->relatedKey;
     }
 }

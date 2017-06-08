@@ -26,6 +26,8 @@ class Collection
 
         $result = call_user_func_array([$this->connection->getCouchDBClient(), $method], $parameters);
 
+        //echo json_encode($parameters,JSON_PRETTY_PRINT);
+
         return $result;
     }
 
@@ -40,13 +42,15 @@ class Collection
         $client = $this->connection->getCouchDBClient();
         $where['doc_collection'] = $this->collection;
 
-        $result = $client->find($where, ['_id', '_rev']);
+        //TODO: change this limit after create cursor
+        $result = $client->find($where, [], [], 999999999);
 
         if ($result->status == 200) {
             $bulkUpdater = $client->createBulkUpdater();
 
             foreach ($result->body['docs'] as $doc) {
-                $bulkUpdater->deleteDocument($doc['_id'], $doc['_rev']);
+                $doc['_deleted'] = true;
+                $bulkUpdater->updateDocument($doc,$doc['_id']);
             }
             $result = $bulkUpdater->execute();
 
@@ -99,7 +103,8 @@ class Collection
 
     public function updateMany($selector, $values, array $options = [])
     {
-        $result = $this->find($selector);
+        //TODO: change this limit after create cursor
+        $result = $this->find($selector, [], [], 999999999);
 
         if ($result->status == 200) {
             $documents = $result->body['docs'];
